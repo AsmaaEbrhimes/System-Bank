@@ -3,6 +3,7 @@ using Banking_System.Data;
 using Banking_System.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Controllers
@@ -75,9 +76,12 @@ namespace Banking.Controllers
         }
 
 
-
-
-
+        [HttpGet("Approved-rejected")]
+        public async Task<IActionResult> GetRejectedLoans()
+        {
+            var request_approved = await _contextApi.Loans.Where(loan => loan.Status == "Rejected").ToListAsync();
+            return Ok(request_approved);
+        }
 
 
         [HttpPut("{loanId}/approve")]
@@ -119,6 +123,26 @@ namespace Banking.Controllers
                 monthlyInstallment = loan.MonthlyInstallment,
                 newAccountBalance = loan.Account.Balance
             });
+        }
+
+
+
+
+        [HttpPut("{loanId}/reject")]
+
+        public async Task<IActionResult> RejectLoan(int loanId)
+        {
+            var loan = await _contextApi.Loans.FindAsync(loanId);
+            if (loan == null)  return NotFound("طلب القرض غير موجود.");
+            if(loan.Status != "Pending") return BadRequest("تم اتخاذ قرار بشأن هذا القرض مسبقاً.");
+            loan.Status = "Rejected";
+            await _contextApi.SaveChangesAsync();
+            return Ok(new
+            {
+                message = "تم رفض طلب القرض بنجاح.",
+                status = loan.Status
+            });
+
         }
 
 
