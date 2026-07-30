@@ -1,9 +1,7 @@
 ﻿using Banking.Model;
 using Banking_System.Data;
 using Banking_System.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Controllers
