@@ -38,6 +38,17 @@ namespace Banking.Controllers
         }
 
 
+        [HttpGet("with-accounts")]
+        public async Task<IActionResult> GetCustomersWithAccounts()
+        {
+            var customers = await _context.GetCustomers
+                    .Include(c => c.Accounts)
+                    .Where(c => c.Accounts != null && c.Accounts.Any())
+                    .ToListAsync();
+            return Ok(customers);
+        }
+
+
 
 
         [HttpGet("{Id}")]
@@ -63,6 +74,10 @@ namespace Banking.Controllers
             return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
 
         }
+
+
+
+
 
 
 
