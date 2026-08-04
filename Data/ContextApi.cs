@@ -1,5 +1,6 @@
 ﻿
 using Banking.Model;
+using Banking.Model.Bills;
 using Banking.Model.Cards;
 using Banking_System.Model;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace Banking_System.Data
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<Loan> Loans { get; set; }
         public virtual DbSet<Card> Cards { get; set; }
+        public virtual DbSet<Bill> Bills { get; set; }
 
 
 
