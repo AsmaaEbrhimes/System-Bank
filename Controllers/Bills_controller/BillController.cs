@@ -98,10 +98,15 @@ namespace Banking.Controllers.Bills_controller
         public async Task<IActionResult> PayBill(int billId, [FromBody] PayBillDto dto)
         {
             var bill = await _context.Bills.FindAsync(billId);
-            var account = await _context.Accounts.FindAsync(bill.AccountId);
-            if (bill == null || account == null)
+            if (bill == null)
             {
-                return NotFound("الفاتورة أو الحساب غير موجود!");
+                return NotFound("الفاتورة غير موجودة!");
+            }
+
+            var account = await _context.Accounts.FindAsync(dto.AccountId);
+            if (account == null)
+            {
+                return NotFound("الحساب غير موجود!");
             }
 
             if (bill.IsPaid)
@@ -109,17 +114,17 @@ namespace Banking.Controllers.Bills_controller
                 return BadRequest("الفاتورة دي مدفوعة بالفعل!");
             }
 
-
             if (account.Balance < bill.Amount)
             {
                 return BadRequest("الرصيد في الحساب غير كافي لدفع الفاتورة!");
             }
 
             account.Balance -= bill.Amount;
-
             bill.IsPaid = true;
             bill.PaidAt = DateTime.Now;
-            bill.AccountId = dto.AccountId;
+            bill.AccountId = account.Id;
+
+         
             var transaction = new Banking_System.Model.Transaction
             {
                 AccountId = account.Id,
@@ -130,7 +135,6 @@ namespace Banking.Controllers.Bills_controller
             };
             _context.Transactions.Add(transaction);
 
-            await _context.SaveChangesAsync();
             string message = $"تم سداد فاتورة ({bill.Title}) بنجاح بمبلغ {bill.Amount} ج.م.";
             var notification = new Notification
             {
@@ -140,17 +144,20 @@ namespace Banking.Controllers.Bills_controller
                 CreatedAt = DateTime.Now
             };
             _context.Notifications.Add(notification);
-            await _hubContext.Clients.All.SendAsync("ReceiveNotification", message);
 
+           
+            await _context.SaveChangesAsync();
+
+           
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", message);
 
             return Ok(new
             {
-                Message = $"تم سداد فاتورة ({bill.Title}) بنجاح بمبلغ {bill.Amount} ج.م.",
+                Message = message,
                 RemainingBalance = account.Balance,
                 PaidAt = bill.PaidAt
             });
         }
-
 
 
 
