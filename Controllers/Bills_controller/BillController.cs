@@ -1,6 +1,10 @@
-﻿using Banking.Model.Bills;
+﻿using Banking.Hubs;
+using Banking.Model.Bills;
+using Banking.Model.Notifications;
 using Banking_System.Data;
+using Banking_System.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 
@@ -11,11 +15,13 @@ namespace Banking.Controllers.Bills_controller
     public class BillController : ControllerBase
     {
         private readonly ContextApi _context;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
 
-        public BillController(ContextApi context)
+        public BillController(ContextApi context, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
 
@@ -125,6 +131,17 @@ namespace Banking.Controllers.Bills_controller
             _context.Transactions.Add(transaction);
 
             await _context.SaveChangesAsync();
+            string message = $"تم سداد فاتورة ({bill.Title}) بنجاح بمبلغ {bill.Amount} ج.م.";
+            var notification = new Notification
+            {
+                CustomerId = account.CustomerId,
+                Title = "سداد الفاتورة بنجاح",
+                Message = message,
+                CreatedAt = DateTime.Now
+            };
+            _context.Notifications.Add(notification);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", message);
+
 
             return Ok(new
             {
