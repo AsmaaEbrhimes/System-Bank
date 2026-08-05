@@ -2,6 +2,7 @@
 using Banking.Model;
 using Banking.Model.Bills;
 using Banking.Model.Cards;
+using Banking.Model.Notifications;
 using Banking_System.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +18,7 @@ namespace Banking_System.Data
         public virtual DbSet<Loan> Loans { get; set; }
         public virtual DbSet<Card> Cards { get; set; }
         public virtual DbSet<Bill> Bills { get; set; }
-
-
-
-
+        public virtual DbSet<Notification> Notifications { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
