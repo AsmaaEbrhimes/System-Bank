@@ -44,7 +44,7 @@ namespace Eccomarce.Controllers
             db.Users.Add(user);
             await db.SaveChangesAsync();
 
-            return Ok("Registered Successfully");
+            return Ok(new { message = "Registered Successfully" });
         }
 
 
@@ -66,6 +66,7 @@ namespace Eccomarce.Controllers
 
             return Ok(new
             {
+                message = "Logged in successfully",
                 Token = token
             });
         }
