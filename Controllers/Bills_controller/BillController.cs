@@ -161,5 +161,75 @@ namespace Banking.Controllers.Bills_controller
 
 
 
+        // =========================================================================
+        //4- عرض كل الفواتير سواء كانت مدفوعة او لا
+        // =========================================================================
+        //[HttpGet("customer/{customerId}/all")]
+        //public async Task<IActionResult> GetAllBills(int customerId, [FromQuery] bool? status)
+        //{
+        //    var customerExists = await _context.GetCustomers.AnyAsync(c => c.Id == customerId);
+        //    if (!customerExists)
+        //    {
+        //        return NotFound("العميل غير موجود في النظام!");
+        //    }
+
+        //    var query = _context.Bills
+        //        .AsNoTracking()
+        //        .Where(b => b.Account.CustomerId == customerId);
+
+        //    if (status.HasValue)
+        //    {
+        //        query = query.Where(b => b.IsPaid == status.Value);
+        //    }
+
+        //    var bills = await query.ToListAsync();
+
+        //    return Ok(bills);
+        //}
+
+
+        [HttpGet("customer/{customerId}/all")]
+        public async Task<IActionResult> GetAllBills(int customerId, [FromQuery] bool? status)
+        {
+            // 1. جلب أرقام حسابات العميل
+            var accountIds = await _context.Accounts
+                .AsNoTracking()
+                .Where(a => a.CustomerId == customerId)
+                .Select(a => a.Id)
+                .ToListAsync();
+
+            if (!accountIds.Any())
+            {
+                return Ok(new List<object>());
+            }
+
+            // 2. فلترة الفواتير بناءً على accountId بدون JOIN
+            var query = _context.Bills
+                .AsNoTracking()
+                .Where(b => accountIds.Contains(b.AccountId));
+
+            if (status.HasValue)
+            {
+                query = query.Where(b => b.IsPaid == status.Value);
+            }
+
+            // 3. تحديد الخصائص المطلوبة فقط ومنع الـ NULL
+            var bills = await query.Select(b => new
+            {
+                b.Id,
+                b.Title,
+                b.Category,
+                b.Amount,
+                b.DateTime,
+                b.IsPaid,
+                b.PaidAt,
+                b.AccountId
+            }).ToListAsync();
+
+            return Ok(bills);
+        }
+
+
+
     }
 }
