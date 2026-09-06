@@ -44,9 +44,15 @@ namespace Banking.Controllers
         public async Task<IActionResult> GetCustomersWithAccounts()
         {
             var customers = await _context.GetCustomers
-                    .Include(c => c.Accounts)
-                    .Where(c => c.Accounts != null && c.Accounts.Any())
-                    .ToListAsync();
+                    // .AsNoTracking()
+                    //.Include(c => c.Accounts)
+                    //.Where(c => c.Accounts != null && c.Accounts.Any())
+                    //.ToListAsync();
+                    .AsNoTracking()
+        .Include(c => c.Accounts)
+        .Where(c => c.Accounts.Any())
+        .ToListAsync();
+
             return Ok(customers);
         }
 
