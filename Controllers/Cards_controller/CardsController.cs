@@ -1,6 +1,7 @@
 ﻿using Banking.Model.Cards;
 using Banking_System.Data;
 using Banking_System.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace Banking.Controllers.Cards_controller
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CardsController : ControllerBase
     {
         private readonly ContextApi _contextApi;
