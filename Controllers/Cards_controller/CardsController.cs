@@ -110,5 +110,24 @@ namespace Banking.Controllers.Cards_controller
             await _contextApi.SaveChangesAsync();
             return Ok(new { message = "تم تغيير الرقم السري بنجاح." });
         }
+
+
+       
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCard(int id)
+        {
+            int rowsAffected = await _contextApi.Cards
+                .Where(c => c.Id == id)
+                .ExecuteDeleteAsync();
+
+            if (rowsAffected == 0)
+            {
+                return NotFound(new { message = "Card not found" });
+            }
+
+            return Ok(new { message = "Card deleted successfully" });
+        }
+
+
     }
 }
