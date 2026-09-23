@@ -22,6 +22,25 @@ namespace Banking.Controllers.Cards_controller
             _contextApi = context;
         }
 
+
+        // ==========================================
+        // 1. Endpoint للـ Frontend عند الـ onkeyup
+        // ==========================================
+        [HttpPost("check-pin")]
+        public async Task<IActionResult> CheckPin([FromBody] CheckPinDto dto)
+        {
+            var query = _contextApi.Cards.AsQueryable();
+
+            bool isUsed = await query.AnyAsync(c => c.Pin == dto.Pin);
+
+            return Ok(new
+            {
+                isUsed = isUsed,
+                message = isUsed ? "هذا الرقم السري مستخدم بالفعل في كارت آخر." : "الرقم السري متاح."
+            });
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> GetAllCards()
         {
