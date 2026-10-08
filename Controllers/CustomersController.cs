@@ -37,7 +37,6 @@ namespace Banking.Controllers
                     c.Accounts
                 })
                 .ToListAsync();
-
             return Ok(customers);
         }
 
