@@ -22,14 +22,29 @@ namespace Banking.Controllers
             _context = context;
         }
 
-
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
+        public async Task<IActionResult> GetCustomers()
         {
-            return await _context.GetCustomers
-                                 .Include(c => c.Accounts)
-                                 .ToListAsync();
+            var customers = await _context.GetCustomers
+                .Select(c => new
+                {
+                    c.Id,
+                    c.FullName,
+                    c.NationalId,
+                    c.PhoneNumber,
+                    c.CreatedAt,
+                    HasLoans = c.Accounts.Any(a => _context.Loans.Any(l => l.AccountId == a.Id)),
+                    c.Accounts
+                })
+                .ToListAsync();
+
+            return Ok(customers);
         }
+
+
+
+
+
 
 
         [HttpGet("Accounts")]
