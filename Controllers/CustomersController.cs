@@ -44,10 +44,6 @@ namespace Banking.Controllers
         public async Task<IActionResult> GetCustomersWithAccounts()
         {
             var customers = await _context.GetCustomers
-                    // .AsNoTracking()
-                    //.Include(c => c.Accounts)
-                    //.Where(c => c.Accounts != null && c.Accounts.Any())
-                    //.ToListAsync();
                     .AsNoTracking()
         .Include(c => c.Accounts)
         .Where(c => c.Accounts.Any())
@@ -79,11 +75,25 @@ namespace Banking.Controllers
         {
             _context.GetCustomers.Add(customer);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
-
+            return Ok(new
+            {
+               customer,
+                message = "Done add customer successfully"
+            });
         }
 
 
+        [HttpDelete("{id}")]
+
+        public async Task<ActionResult>DeleteCustomer(int id)
+        {
+            var customerId = await _context.GetCustomers
+                .Where(customer => customer.Id == id)
+                .ExecuteDeleteAsync();
+            if(customerId == 0) return NotFound(new { message = "Card not found" });
+
+            return Ok(new { message = "Done Deleted Customer Successfully" });
+        }
 
 
 
