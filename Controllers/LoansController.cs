@@ -76,11 +76,20 @@ namespace Banking.Controllers
         }
 
 
-        [HttpGet("Approved-rejected")]
+        [HttpGet("rejected-requests")]
         public async Task<IActionResult> GetRejectedLoans()
         {
             var request_approved = await _contextApi.Loans.Where(loan => loan.Status == "Rejected").ToListAsync();
             return Ok(request_approved);
+        }
+
+
+
+        [HttpGet("GetAllLoans")]
+        public async Task<ActionResult> GelAllLoans()
+        {
+            var loans = await _contextApi.Loans.ToListAsync();
+            return Ok(loans);
         }
 
 

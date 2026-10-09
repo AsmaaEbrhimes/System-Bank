@@ -34,8 +34,12 @@ namespace Banking.Controllers
                     c.PhoneNumber,
                     c.CreatedAt,
                     HasLoans = c.Accounts.Any(a => _context.Loans.Any(l => l.AccountId == a.Id)),
+                    ExsisitCard= c.Accounts.Any(a => _context.Cards.Any(l => l.AccountId == a.Id)),
                     c.Accounts
                 })
+
+
+
                 .ToListAsync();
             return Ok(customers);
         }
