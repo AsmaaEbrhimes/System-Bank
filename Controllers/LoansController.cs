@@ -86,9 +86,17 @@ namespace Banking.Controllers
 
 
         [HttpGet("GetAllLoans")]
-        public async Task<ActionResult> GelAllLoans()
+        public async Task<ActionResult> GelAllLoans(string ? status)
         {
-            var loans = await _contextApi.Loans.ToListAsync();
+
+            var loans = await _contextApi.Loans
+                .AsNoTracking()
+                .Where(loan => loan.Status == status)
+                .ToListAsync();
+            if(status == null || status == "All")
+            {
+                loans = await _contextApi.Loans.ToListAsync();
+            }
             return Ok(loans);
         }
 
