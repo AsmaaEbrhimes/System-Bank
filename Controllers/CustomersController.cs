@@ -45,11 +45,6 @@ namespace Banking.Controllers
         }
 
 
-
-
-
-
-
         [HttpGet("Accounts")]
         public async Task<IActionResult> GetAllAccounts()
         {

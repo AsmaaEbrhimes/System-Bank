@@ -109,9 +109,8 @@ namespace Banking.Controllers
             if (loan == null) return NotFound("طلب القرض غير موجود.");
             if (loan.Status != "Pending") return BadRequest("تم اتخاذ قرار بشأن هذا القرض مسبقاً.");
 
-
-            decimal totalPayable = loan.Amount + (loan.Amount * dto.InterestRate.Value);
-
+            decimal interestAmount = ((loan.Amount * dto.InterestRate.Value) / 100m) * (dto.DurationInMonths.Value / 12m);
+            decimal totalPayable = loan.Amount + interestAmount;
             decimal monthlyInstallment = totalPayable / dto.DurationInMonths.Value;
 
             loan.DurationInMonths = dto.DurationInMonths.Value;
@@ -119,7 +118,7 @@ namespace Banking.Controllers
             loan.Status = "Approved";
             loan.TotalAmountPayable = totalPayable;
             loan.MonthlyInstallment = monthlyInstallment;
-            loan.Account.Balance += loan.Amount;
+            loan.Account.Balance += totalPayable;
 
             var tranaction = new Transaction
             {
@@ -129,7 +128,6 @@ namespace Banking.Controllers
                 CreatedAt = DateTime.Now
 
             };
-
             _contextApi.Transactions.Add(tranaction);
             await _contextApi.SaveChangesAsync();
             return Ok(new
@@ -141,8 +139,6 @@ namespace Banking.Controllers
                 newAccountBalance = loan.Account.Balance
             });
         }
-
-
 
 
         [HttpPut("{loanId}/reject")]
