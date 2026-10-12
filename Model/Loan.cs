@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Banking.Model;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,5 +24,8 @@ namespace Banking_System.Model
         // ربط القرض بالحساب
         public int? AccountId { get; set; }
         public Account Account { get; set; }
+        public virtual ICollection<Installment> Installments { get; set; }
+
+
     }
 }

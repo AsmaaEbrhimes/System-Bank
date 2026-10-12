@@ -5,5 +5,6 @@
         public string Status { get; set; }
         public int? DurationInMonths { get; set; }     // الشهور
         public decimal? InterestRate { get; set; }     // نسبة الفائدة (مثلاً 0.10)
+        public ICollection <Installment> installments { get; set; }
     }
 }
