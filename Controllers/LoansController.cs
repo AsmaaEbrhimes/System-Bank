@@ -84,19 +84,20 @@ namespace Banking.Controllers
         }
 
 
-
         [HttpGet("GetAllLoans")]
-        public async Task<ActionResult> GelAllLoans(string ? status)
+        public async Task<ActionResult> GelAllLoans(string? status)
         {
-
-            var loans = await _contextApi.Loans
+            var query = _contextApi.Loans
                 .AsNoTracking()
-                .Where(loan => loan.Status == status)
-                .ToListAsync();
-            if(status == null || status == "All")
+                .Include(l => l.Installments)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status) && status != "All")
             {
-                loans = await _contextApi.Loans.ToListAsync();
+                query = query.Where(loan => loan.Status == status);
             }
+
+            var loans = await query.ToListAsync();
             return Ok(loans);
         }
 
@@ -104,10 +105,15 @@ namespace Banking.Controllers
         [HttpPut("{loanId}/approve")]
         public async Task<IActionResult> ApproveLoan(int loanId, [FromBody] LoanReviewDto dto)
         {
-            var loan = await _contextApi.Loans.Include(loan => loan.Account).FirstOrDefaultAsync(loan => loan.Id == loanId);
+            var loan = await _contextApi
+                .Loans.Include(loan => loan.Account)
+                .Include(l => l.Installments)
+                .FirstOrDefaultAsync(loan => loan.Id == loanId);
             if (dto.DurationInMonths <= 0 || dto.InterestRate == 0) return BadRequest("يرجى إدخال عدد شهور ونسبة فائدة صحيحة.");
             if (loan == null) return NotFound("طلب القرض غير موجود.");
             if (loan.Status != "Pending") return BadRequest("تم اتخاذ قرار بشأن هذا القرض مسبقاً.");
+            if (dto.installments.Count != dto.DurationInMonths.Value) return BadRequest("عدد الأقساط المدخلة لا يتطابق مع مدة القرض بالأشهر.");
+            if (dto.installments == null || !dto.installments.Any()) return BadRequest("يرجى إدخال جدول الأقساط الخاصة بالقرض.");
 
             decimal interestAmount = ((loan.Amount * dto.InterestRate.Value) / 100m) * (dto.DurationInMonths.Value / 12m);
             decimal totalPayable = loan.Amount + interestAmount;
@@ -128,7 +134,28 @@ namespace Banking.Controllers
                 CreatedAt = DateTime.Now
 
             };
+
+            if (loan.Id == loanId)
+            {
+                if (loan.Installments == null)
+                {
+                    loan.Installments = new List<Installment>();
+                }
+                foreach (var i in dto.installments)
+                {
+                    loan.Installments.Add(new Installment
+                    {
+                        Name = i.Name,
+                        Amount = i.Amount,
+                        Status = false,
+                        PaymentDate = i.PaymentDate
+                    });
+                }
+            }
+
+
             _contextApi.Transactions.Add(tranaction);
+
             await _contextApi.SaveChangesAsync();
             return Ok(new
             {
@@ -142,7 +169,6 @@ namespace Banking.Controllers
 
 
         [HttpPut("{loanId}/reject")]
-
         public async Task<IActionResult> RejectLoan(int loanId)
         {
             var loan = await _contextApi.Loans.FindAsync(loanId);
