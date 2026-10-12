@@ -100,6 +100,37 @@ namespace Banking.Migrations
                     b.ToTable("Cards");
                 });
 
+            modelBuilder.Entity("Banking.Model.Installment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("LoanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoanId");
+
+                    b.ToTable("Installments");
+                });
+
             modelBuilder.Entity("Banking.Model.Notifications.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -321,6 +352,15 @@ namespace Banking.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("Banking.Model.Installment", b =>
+                {
+                    b.HasOne("Banking_System.Model.Loan", null)
+                        .WithMany("Installments")
+                        .HasForeignKey("LoanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Banking.Model.Notifications.Notification", b =>
                 {
                     b.HasOne("Banking_System.Model.Customer", "GetCustomer")
@@ -366,6 +406,11 @@ namespace Banking.Migrations
             modelBuilder.Entity("Banking_System.Model.Customer", b =>
                 {
                     b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("Banking_System.Model.Loan", b =>
+                {
+                    b.Navigation("Installments");
                 });
 #pragma warning restore 612, 618
         }
