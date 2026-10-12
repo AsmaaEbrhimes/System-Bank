@@ -19,6 +19,8 @@ namespace Banking_System.Data
         public virtual DbSet<Card> Cards { get; set; }
         public virtual DbSet<Bill> Bills { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<Installment> Installments { get; set; }
+
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
