@@ -28,7 +28,16 @@ namespace Banking.Controllers.Installments
 
 
 
-        //[HttpPost]
+    [HttpGet ("{loanId}")]
+    public async Task<IActionResult> getInstallmentByLoanId(int loanId)
+        {
+            var instalmentsbyloanId = await _contextApi.Installments
+                .Where(installment => installment.LoanId == loanId)
+                .AsNoTracking()
+                .ToListAsync();
+            return Ok(instalmentsbyloanId);
+        }
+
 
 
     }
