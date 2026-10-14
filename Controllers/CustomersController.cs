@@ -33,8 +33,8 @@ namespace Banking.Controllers
                     c.NationalId,
                     c.PhoneNumber,
                     c.CreatedAt,
-                    HasLoans = c.Accounts.Any(a => _context.Loans.Any(l => l.AccountId == a.Id)),
-                    ExsisitCard= c.Accounts.Any(a => _context.Cards.Any(l => l.AccountId == a.Id)),
+                    HasLoans = c.Accounts.Any(a => a.Balance > 0),
+                    ExsisitCard = c.Accounts.Any(a => _context.Cards.Any(l => l.AccountId == a.Id)),
                     c.Accounts
                 })
 

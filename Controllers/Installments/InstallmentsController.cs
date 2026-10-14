@@ -82,16 +82,19 @@ namespace Banking.Controllers.Installments
             installment.Amount = 0;
 
             // خصم المبلغ من رصيد الحساب
-            loan.Account.Balance -= dtoPayInstallment.Amount;
+        //    loan.Account.Balance -= dtoPayInstallment.Amount;
 
-            var remainingInstallmentsCount = await _contextApi.Installments
-        .Where(i => i.LoanId == loan.Id && i.Status == false)
-        .CountAsync();
+        //    var remainingInstallmentsCount = await _contextApi.Installments
+        //.Where(i => i.LoanId == loan.Id && i.Status == false)
+        //.CountAsync();
 
-            if(remainingInstallmentsCount == 0)
-            {
-            _contextApi.Loans.Remove(loan);
-            }
+        //    if (remainingInstallmentsCount == 0)
+        //    {
+        //        //_contextApi.Loans.Remove(loan);
+        //    }
+
+
+
             await _contextApi.SaveChangesAsync();
             return Ok(new { message = "Installment paid successfully", remainingBalance = loan.Account.Balance });
         }
