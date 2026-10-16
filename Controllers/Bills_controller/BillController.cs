@@ -74,7 +74,6 @@ namespace Banking.Controllers.Bills_controller
                 return NotFound("العميل ده ملوش أي حساب بنكي متسجل في السيستم!");
             }
 
-
             var bill = new Bill
             {
                 Title = dto.Title,
@@ -163,32 +162,38 @@ namespace Banking.Controllers.Bills_controller
 
 
 
-        // =========================================================================
-        //4- عرض كل الفواتير سواء كانت مدفوعة او لا
-        // =========================================================================
+  
 
-        [HttpGet("customer/{customerId}/all")]
-        public async Task<IActionResult> GetAllBills(int customerId, [FromQuery] bool? status)
+        // =========================================================================
+        // 4- عرض الفواتير (لو بدون customerId يجيب كل الفواتير المدفوعة لكل العملاء كـ Default)
+        // =========================================================================
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllBills([FromQuery] int? customerId, [FromQuery] bool? status)
         {
-            // 1. جلب أرقام حسابات العميل
-            var accountIds = await _context.Accounts
-                .AsNoTracking()
-                .Where(a => a.CustomerId == customerId)
-                .Select(a => a.Id)
-                .ToListAsync();
-
-            if (!accountIds.Any())
-            {
-                return Ok(new List<object>());
-            }
             var query = _context.Bills
+                .Include(b => b.Account)
                 .AsNoTracking()
-                .Where(b => accountIds.Contains(b.AccountId));
+                .AsQueryable();
 
-            if (status.HasValue)
+            if (customerId.HasValue)
+            {
+                query = query.Where(b => b.Account != null && b.Account.CustomerId == customerId.Value);
+
+                if (status.HasValue)
+                {
+                    query = query.Where(b => b.IsPaid == status.Value);
+                }
+            }
+            
+            else if (status.HasValue)
             {
                 query = query.Where(b => b.IsPaid == status.Value);
             }
+            else
+            {
+                query = query.Where(b => b.IsPaid == true);
+            }
+
             var bills = await query.Select(b => new
             {
                 b.Id,
@@ -198,13 +203,11 @@ namespace Banking.Controllers.Bills_controller
                 b.DateTime,
                 b.IsPaid,
                 b.PaidAt,
-                b.AccountId
+                b.AccountId,
+                CustomerId = b.Account != null ? b.Account.CustomerId : (int?)null
             }).ToListAsync();
 
             return Ok(bills);
         }
-
-
-
     }
 }
