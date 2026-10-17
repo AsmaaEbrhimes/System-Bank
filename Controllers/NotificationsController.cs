@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
 
 namespace Banking.Controllers
 {
@@ -36,6 +37,32 @@ namespace Banking.Controllers
             return Ok(notifications);
         }
 
+
+
+        [HttpGet("GetAllNotification")]
+        public async Task<IActionResult> GetAllNotifications()
+        {
+            var all_notifications = await _context.Notifications.ToListAsync();
+            return Ok(all_notifications);
+        }
+
+
+
+        [HttpPut("MarkAsRead")]
+        public async Task<IActionResult> MarkAsRead()
+        {
+            var UnReadNotifications = await _context.Notifications
+                .Where(notificate => !notificate.IsRead)
+                .ToListAsync();
+
+            foreach (var item in UnReadNotifications)
+            {
+                item.IsRead = true;
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Notifications marked as read" });
+        }
     }
 }
 
