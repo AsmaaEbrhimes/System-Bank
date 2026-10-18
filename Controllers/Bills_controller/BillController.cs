@@ -139,7 +139,7 @@ namespace Banking.Controllers.Bills_controller
             string message = $"تم سداد فاتورة ({bill.Title}) بنجاح بمبلغ {bill.Amount} ج.م.";
             var notification = new Notification
             {
-                CustomerId = account.CustomerId,
+                CustomerId = account.CustomerId ?? 0,
                 Title = "سداد الفاتورة بنجاح",
                 Message = message,
                 CreatedAt = DateTime.Now

@@ -17,7 +17,7 @@ namespace Banking_System.Model
         public decimal Balance { get; set; }
         public string Status { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public int CustomerId { get; set; }
+        public int ? CustomerId { get; set; }
         [JsonIgnore]
         public Customer ? Customer { get; set; }
         ICollection<Transaction> ? Transactions { get; set; }
