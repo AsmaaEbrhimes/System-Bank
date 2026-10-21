@@ -8,7 +8,7 @@ namespace Banking
         public static async Task<object> ToPagedListAsync<T>(
         this IQueryable<T> query,
         int pageNumber = 1,
-        int pageSize = 10)
+        int pageSize = 5)
         {
             // 1. حساب إجمالي عدد العناصر
             var totalCount = await query.CountAsync();
